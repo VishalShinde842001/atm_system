@@ -17,5 +17,6 @@ import lombok.ToString;
 public class TransactionMessage {
 	private String trasaction_message;
 	private boolean transaction_status;
+	private String trasaction_id;
 
 }

@@ -18,6 +18,7 @@ public class MoneyTransferResponse {
 
 	private boolean money_transfer_status;
 	private String money_transfer_message;
+	private String transaction_id;
 	
 	
 }
