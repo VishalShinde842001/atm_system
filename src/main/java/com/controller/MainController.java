@@ -27,12 +27,14 @@ import com.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-
+//I used single controller class to maintain all controller requests
 @RestController
 @CrossOrigin("http://localhost:4200")
 public class MainController {
+	//UserService is autowired to do operations with User table
 	@Autowired
 	private UserService userService;
+	
 	@Autowired
 	private TransactionMessage trm;
 	@Autowired
