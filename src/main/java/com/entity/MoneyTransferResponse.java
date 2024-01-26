@@ -16,6 +16,8 @@ import lombok.ToString;
 @Component
 public class MoneyTransferResponse {
 
+	private String date;
+	private String time;
 	private boolean money_transfer_status;
 	private String money_transfer_message;
 	private String transaction_id;

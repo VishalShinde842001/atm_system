@@ -55,16 +55,17 @@ public class MainController {
 
 	@PostMapping("/login")
 	public ResponseEntity<Boolean> login(@RequestBody AccountData accountData, HttpServletRequest request) {
-		try{User u = this.userService.findByAccountNumber(accountData);
-		if (u == null) {
-			return new ResponseEntity<Boolean>(false, HttpStatus.NOT_FOUND);
-		}
-		httpSession = request.getSession();
-		httpSession.setAttribute("account_number", u.getAccount_number());
-		System.out.println("Login Succesfully and value stored in session is:");
-		System.out.println("Account Number:" + httpSession.getAttribute("account_number"));
-		return ResponseEntity.ok(true);}
-		catch(Exception e) {
+		try {
+			User u = this.userService.findByAccountNumber(accountData);
+			if (u == null) {
+				return new ResponseEntity<Boolean>(false, HttpStatus.NOT_FOUND);
+			}
+			httpSession = request.getSession();
+			httpSession.setAttribute("account_number", u.getAccount_number());
+			System.out.println("Login Succesfully and value stored in session is:");
+			System.out.println("Account Number:" + httpSession.getAttribute("account_number"));
+			return ResponseEntity.ok(true);
+		} catch (Exception e) {
 			System.out.println("You send wrong request boy");
 			return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
 		}
@@ -159,14 +160,15 @@ public class MainController {
 				return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(pcr);
 
 			}
-			String account_number=(String)httpSession.getAttribute("account_number");
-			pcr=this.transactionService.changePin(pin, account_number);
-			if(pcr.isPassword_change_status()) {
+			String account_number = (String) httpSession.getAttribute("account_number");
+			pcr = this.transactionService.changePin(pin, account_number);
+
+			if (pcr.isPassword_change_status()) {
+
 				return ResponseEntity.ok(pcr);
 			}
 			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(pcr);
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			pcr.setPassword_change_message("Session Already invalidated So login again for transaction");
 			pcr.setPassword_change_status(false);
@@ -176,7 +178,7 @@ public class MainController {
 	}
 
 	@GetMapping("/checkBalance")
-	public ResponseEntity<BalanceEnquiry> checkBalance(){
+	public ResponseEntity<BalanceEnquiry> checkBalance() {
 		try {
 			if (httpSession == null) {
 				be.setEnquiry_message("Actually Session is null!Try To Do With Login Again");
@@ -188,45 +190,43 @@ public class MainController {
 				be.setBalance_enquiry_status(false);
 				return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(be);
 			}
-			String account_number=(String)httpSession.getAttribute("account_number");
-			be=this.transactionService.checkBalance(account_number);
-			if(be.isBalance_enquiry_status()) {
+			String account_number = (String) httpSession.getAttribute("account_number");
+			be = this.transactionService.checkBalance(account_number);
+			if (be.isBalance_enquiry_status()) {
 				return ResponseEntity.ok(be);
 			}
-		
+
 			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(be);
-		
-		}
-		catch(Exception r) {
+
+		} catch (Exception r) {
 			r.printStackTrace();
 			be.setEnquiry_message("Somthing Error occured in Check Balance Login Agian and try");
 			be.setBalance_enquiry_status(false);
 			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(be);
-			
+
 		}
-		
+
 	}
+
 	@PutMapping("/moneyTransfer")
-	public ResponseEntity<MoneyTransferResponse> moneyTransfer(@RequestBody MoneyTransferDetails mtd){
-		if(httpSession==null) {
+	public ResponseEntity<MoneyTransferResponse> moneyTransfer(@RequestBody MoneyTransferDetails mtd) {
+		if (httpSession == null) {
 			mtr.setMoney_transfer_message("Session is Null So Login Again To Transfer Money");
 			mtr.setMoney_transfer_status(false);
 			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(mtr);
 		}
-		if(httpSession.getAttribute("account_number")==null) {
+		if (httpSession.getAttribute("account_number") == null) {
 			mtr.setMoney_transfer_message("Session is Null So Login Again To Transfer Money");
 			mtr.setMoney_transfer_status(false);
 			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(mtr);
 		}
-		String account_number=(String)httpSession.getAttribute("account_number");
-		mtr=this.transactionService.moneyTransfer(account_number, mtd.getAccount_number(), mtd.getAmount());
-		if(mtr.isMoney_transfer_status()) {
+		String account_number = (String) httpSession.getAttribute("account_number");
+		mtr = this.transactionService.moneyTransfer(account_number, mtd.getAccount_number(), mtd.getAmount());
+		if (mtr.isMoney_transfer_status()) {
 			return ResponseEntity.ok(mtr);
 		}
 		return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(mtr);
-		
+
 	}
-	
-	
-	
+
 }

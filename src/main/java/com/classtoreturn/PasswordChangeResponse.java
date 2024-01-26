@@ -15,6 +15,9 @@ import lombok.ToString;
 @ToString
 @Component
 public class PasswordChangeResponse {
+	private String date;
+	private String time;
+	private String transaction_id;
 	private String password_change_message;
 	private boolean password_change_status;
 
