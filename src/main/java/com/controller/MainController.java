@@ -16,8 +16,10 @@ import com.classtoreturn.PasswordChangeResponse;
 import com.classtoreturn.TransactionMessage;
 import com.entity.AccountData;
 import com.entity.AccountInfo;
+import com.entity.MiniStatement;
 import com.entity.MoneyTransferDetails;
 import com.entity.MoneyTransferResponse;
+
 import com.entity.User;
 import com.entity.UserDetails;
 import com.service.TransactionService;
@@ -42,6 +44,9 @@ public class MainController {
 	@Autowired
 	private MoneyTransferResponse mtr;
 
+	@Autowired
+	private MiniStatement miniStatement;
+	
 	private HttpSession httpSession;
 
 	@PostMapping("/register")
@@ -227,6 +232,31 @@ public class MainController {
 		}
 		return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(mtr);
 
+	}
+
+	@GetMapping("/miniStatement")
+	public ResponseEntity<MiniStatement> miniStatement() {
+		try {
+			if (httpSession == null) {
+				this.miniStatement.setMinistatment_status(false);
+				this.miniStatement.setMinistatment_msg("Can't find session So Login Again");
+				return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(miniStatement);
+			}
+			if (httpSession.getAttribute("account_number") == null) {
+				this.miniStatement.setMinistatment_status(false);
+				this.miniStatement.setMinistatment_msg("Can't find user So Login Again");
+				return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(miniStatement);
+			}
+			String account_number = (String) httpSession.getAttribute("account_number");
+			return ResponseEntity.ok(this.transactionService.miniStatement(account_number));
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			this.miniStatement.setMinistatment_msg("Error occured While getting Mini Statement");
+			this.miniStatement.setMinistatment_status(false);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(this.miniStatement);
+
+		}
 	}
 
 }

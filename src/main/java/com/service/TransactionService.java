@@ -12,12 +12,13 @@ import com.classtoreturn.PasswordChangeResponse;
 import com.classtoreturn.TransactionMessage;
 import com.dao.TransactionDao;
 import com.dao.UserDao;
+import com.entity.MiniStatement;
 import com.entity.MoneyTransferResponse;
 import com.entity.Transaction;
 import com.entity.User;
 import com.helper.DateAndTimeCreation;
 import com.helper.TransactionIdCreation;
-
+import java.util.List;
 @Service
 public class TransactionService {
 
@@ -37,6 +38,8 @@ public class TransactionService {
 	private TransactionIdCreation trasactionIdCreation;
 	@Autowired
 	private DateAndTimeCreation dateTimeCreation;
+	@Autowired 
+	private MiniStatement miniStatement;
 
 	private boolean isTransaactionCalled;
 	private String transferedTo;
@@ -318,5 +321,35 @@ public class TransactionService {
 			return mtr;
 		}
 
+	}
+	public MiniStatement miniStatement(String account_number){
+		try {
+			User u=this.findByAccountNumber(account_number);
+			this.miniStatement.setMinistatment_msg("Can't find user Login Again");
+			this.miniStatement.setMinistatment_status(false);
+			if(u==null) {
+				return miniStatement;
+			}
+			List<Transaction> t= this.trdao.miniStatment(account_number);
+			if(!t.isEmpty()) {
+				this.miniStatement.setTransaction(t);
+				this.miniStatement.setMinistatment_status(true);
+				this.miniStatement.setMinistatment_msg("Mini Statement Of Account Number:"+account_number);
+				return miniStatement;
+			
+			}
+			this.miniStatement.setTransaction(t);
+			this.miniStatement.setMinistatment_status(true);
+			this.miniStatement.setMinistatment_msg("Mini Statement of User Don't Have any record:"+account_number);
+			return miniStatement;
+			
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			this.miniStatement.setMinistatment_msg("Error occured While getting Mini Statement");
+			this.miniStatement.setMinistatment_status(false);
+			return miniStatement;
+		}
+		
 	}
 }
