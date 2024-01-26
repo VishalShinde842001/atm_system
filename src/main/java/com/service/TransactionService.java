@@ -65,16 +65,13 @@ public class TransactionService {
 					"Transaction Done Successfully!Amount Depositted:" + amount + " Current Balance:" + newBalance);
 			transactionMessage.setTransaction_status(true);
 
-			
-			
-
 			boolean b;
 			if (isTransaactionCalled) {
 				transactionMessage.setTrasaction_id(this.transactionIdForMoneyTransfer);
 				b = this.saveTransaction("MR" + this.transactionIdForMoneyTransfer, this.transferedTo,
 						this.transferdFrom, this.transferedTo, "Money Received", amount, prevBalance, newBalance);
 			} else {
-				String trasactionId = "DE"+this.trasactionIdCreation.createTransactionId();
+				String trasactionId = "DE" + this.trasactionIdCreation.createTransactionId();
 				transactionMessage.setTrasaction_id(trasactionId);
 				b = this.saveTransaction(trasactionId, account_number, null, null, "Deposit", amount, prevBalance,
 						newBalance);
@@ -142,7 +139,6 @@ public class TransactionService {
 			transactionMessage.setTrasaction_message(
 					"Transaction Done Successfully! Amount Withdraw:" + amount + " Current Balance:" + newBalance);
 			transactionMessage.setTransaction_status(true);
-			
 
 			boolean b;
 			if (isTransaactionCalled) {
@@ -151,7 +147,7 @@ public class TransactionService {
 				b = this.saveTransaction("MT" + this.transactionIdForMoneyTransfer, account_number, account_number,
 						this.transferedTo, "Money Transfer", amount, prevBalance, newBalance);
 			} else {
-				String trasactionId = "WI"+this.trasactionIdCreation.createTransactionId();
+				String trasactionId = "WI" + this.trasactionIdCreation.createTransactionId();
 				transactionMessage.setTrasaction_id(trasactionId);
 				b = this.saveTransaction(trasactionId, account_number, null, null, "Withdraw", amount, prevBalance,
 						newBalance);
@@ -185,16 +181,17 @@ public class TransactionService {
 			int oldPass = u.getAccount_password();
 			u.setAccount_password(newPin);
 			this.userDao.save(u);
-			String trId="PC"+trasactionIdCreation.createTransactionId();
-			String date=dateTimeCreation.dateAndTimeCreator("Date");
-			String time=dateTimeCreation.dateAndTimeCreator("Time");
+			String trId = "PC" + trasactionIdCreation.createTransactionId();
+			String date = dateTimeCreation.dateAndTimeCreator("Date");
+			String time = dateTimeCreation.dateAndTimeCreator("Time");
 			pcr.setDate(date);
 			pcr.setTime(time);
 			pcr.setTransaction_id(trId);
 			pcr.setPassword_change_message(
 					"Password Updated Successfully! Old Password:" + oldPass + " New Password: " + newPin);
 			pcr.setPassword_change_status(true);
-			this.saveTransaction(trId, account_number,"null", "null", "Pin Change",0, u.getAccount_balance(), u.getAccount_balance());
+			this.saveTransaction(trId, account_number, "null", "null", "Pin Change", 0, u.getAccount_balance(),
+					u.getAccount_balance());
 			return pcr;
 
 		} catch (Exception e) {
@@ -237,11 +234,11 @@ public class TransactionService {
 				return ble;
 			}
 			ble.setEnquiry_message("Balance Enquiry");
-			String trId="BE"+trasactionIdCreation.createTransactionId();
-			
-			String date=dateTimeCreation.dateAndTimeCreator("Date");
-			String time=dateTimeCreation.dateAndTimeCreator("Time");
-			double bal=u.getAccount_balance();
+			String trId = "BE" + trasactionIdCreation.createTransactionId();
+
+			String date = dateTimeCreation.dateAndTimeCreator("Date");
+			String time = dateTimeCreation.dateAndTimeCreator("Time");
+			double bal = u.getAccount_balance();
 			ble.setTransaction_id(trId);
 			ble.setDate(date);
 			ble.setTime(time);
@@ -250,7 +247,7 @@ public class TransactionService {
 			ble.setAccount_number(u.getAccount_number());
 			ble.setBalance_enquiry_status(true);
 			ble.setAccount_balance(u.getAccount_balance());
-			this.saveTransaction(trId,u.getAccount_number(),null,null,"Balance Enquiry",0,bal,bal);
+			this.saveTransaction(trId, u.getAccount_number(), null, null, "Balance Enquiry", 0, bal, bal);
 			return ble;
 
 		} catch (Exception e) {
@@ -304,11 +301,12 @@ public class TransactionService {
 			this.transactionMessage = this.deposit(amount, toAccountNumber);
 
 			mtr.setMoney_transfer_status(true);
-			mtr.setTransaction_id("S/R"+this.transactionIdForMoneyTransfer);
-			String date=dateTimeCreation.dateAndTimeCreator("Date");
-			String time=dateTimeCreation.dateAndTimeCreator("Time");
+			mtr.setTransaction_id("S/R" + this.transactionIdForMoneyTransfer);
+			String date = dateTimeCreation.dateAndTimeCreator("Date");
+			String time = dateTimeCreation.dateAndTimeCreator("Time");
 			mtr.setDate(date);
 			mtr.setTime(time);
+			mtr.setReceiver(toAccountNumber);
 			mtr.setMoney_transfer_message("Money Transfer Successfully: " + amount + " Transfered To " + toAccountNumber
 					+ " Your Current Balance is:" + newBal);
 			return mtr;

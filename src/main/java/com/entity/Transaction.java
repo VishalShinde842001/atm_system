@@ -1,6 +1,7 @@
 package com.entity;
 
 import jakarta.persistence.Entity;
+
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +16,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class Transaction {
+	
 	@Id
 	private String transaction_id;
 	private String account_number;
