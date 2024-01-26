@@ -190,7 +190,7 @@ public class TransactionService {
 			pcr.setPassword_change_message(
 					"Password Updated Successfully! Old Password:" + oldPass + " New Password: " + newPin);
 			pcr.setPassword_change_status(true);
-			this.saveTransaction(trId, account_number, "null", "null", "Pin Change", 0, u.getAccount_balance(),
+			this.saveTransaction(trId, account_number, null, null, "Pin Change", 0, u.getAccount_balance(),
 					u.getAccount_balance());
 			return pcr;
 
