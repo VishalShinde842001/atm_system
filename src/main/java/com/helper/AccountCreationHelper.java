@@ -6,26 +6,29 @@ import com.entity.AccountData;
 
 @Component
 public class AccountCreationHelper {
-	
-	public AccountData createAccountData(int age,String gender) {
+	//3+4+4+1
+	public AccountData createAccountData(String gender) {
 		String accountNumberPrefix=generateAccountNumberPrefix();
-		String accountNumber=accountNumberPrefix+generate4DigitsNumber()+generateRandomString()+age+gender.charAt(0);
+		String accountNumber=accountNumberPrefix+generate4DigitsNumber()+generateRandomString()+gender.charAt(0);
 		int accountPassword=generate4DigitsNumber();
 		return new AccountData(accountNumber,accountPassword);
 	}
 	public String generateAccountNumberPrefix() {
 	    double randomValue = Math.random();
 	    int index;
-	    if (randomValue < 0.25) {
+	    if (randomValue < 0.20) {
 	        index = 0; 
-	    } else if (randomValue < 0.5) {
+	    } else if (randomValue < 0.40) {
 	        index = 1; 
-	    } else if (randomValue < 0.75) {
+	    } else if (randomValue < 0.60) {
 	        index = 2; 
-	    } else {
+	    }else if (randomValue < 0.80) {
 	        index = 3; 
 	    }
-	    return new String[]{"ATM", "BANK", "ACC", "NEW"}[index];
+	    else {
+	        index = 4; 
+	    }
+	    return new String[]{"ATM", "BAN", "ACC", "NEW","NAC"}[index];
 	}
 
 	public int generate4DigitsNumber() {
@@ -35,7 +38,7 @@ public class AccountCreationHelper {
 	    String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 	    StringBuilder randomString = new StringBuilder();
 
-	    for (int i = 0; i < 3; i++) {
+	    for (int i = 0; i < 4; i++) {
 	        int randomIndex = (int) (Math.random() * characters.length());
 	        randomString.append(characters.charAt(randomIndex));
 	    }

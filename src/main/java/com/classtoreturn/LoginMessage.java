@@ -1,5 +1,6 @@
+package com.classtoreturn;
 
-package com.entity;
+import org.springframework.stereotype.Component;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,9 +13,9 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class AccountData {
-	private String account_number;
-	private int account_password;
-	
+@Component
+public class LoginMessage {
 
+	private String login_msg;
+	private boolean login_status;
 }

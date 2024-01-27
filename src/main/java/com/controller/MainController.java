@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.classtoreturn.BalanceEnquiry;
+import com.classtoreturn.LoginMessage;
 import com.classtoreturn.PasswordChangeResponse;
 import com.classtoreturn.TransactionMessage;
 import com.entity.AccountData;
@@ -20,21 +21,21 @@ import com.entity.MiniStatement;
 import com.entity.MoneyTransferDetails;
 import com.entity.MoneyTransferResponse;
 
-import com.entity.User;
 import com.entity.UserDetails;
 import com.service.TransactionService;
 import com.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+
 //I used single controller class to maintain all controller requests
 @RestController
 @CrossOrigin("http://localhost:4200")
 public class MainController {
-	//UserService is autowired to do operations with User table
+	// UserService is autowired to do operations with User table
 	@Autowired
 	private UserService userService;
-	
+
 	@Autowired
 	private TransactionMessage trm;
 	@Autowired
@@ -48,21 +49,21 @@ public class MainController {
 
 	@Autowired
 	private MiniStatement miniStatement;
-	
+
 	private HttpSession httpSession;
 
 	@PostMapping("/register")
 	public ResponseEntity<AccountInfo> register(@RequestBody UserDetails userDeatails) {
 		AccountInfo aci;
 		try {
-			aci=this.userService.register(userDeatails);
-		if (aci.isAccount_creation_status()) {
-			System.out.println("Account Created Successfully:"+aci.getAccount_number());
+			aci = this.userService.register(userDeatails);
+			if (aci.isAccount_creation_status()) {
+				System.out.println("Account Created Successfully:" + aci.getAccount_number());
+				return ResponseEntity.ok(aci);
+			}
+			System.out.println("Account Not Created");
 			return ResponseEntity.ok(aci);
-		}
-		System.out.println("Account Not Created");
-		return ResponseEntity.ok(aci);}
-		catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("Error Occred While Creating Account");
 			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(null);
@@ -70,20 +71,21 @@ public class MainController {
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<Boolean> login(@RequestBody AccountData accountData, HttpServletRequest request) {
+	public ResponseEntity<LoginMessage> login(@RequestBody AccountData accountData, HttpServletRequest request) {
 		try {
-			User u = this.userService.findByAccountNumber(accountData);
-			if (u == null) {
-				return new ResponseEntity<Boolean>(false, HttpStatus.NOT_FOUND);
+			LoginMessage loginMessage = this.userService.findByAccountNumber(accountData);
+			if (loginMessage.isLogin_status()) {
+				httpSession = request.getSession();
+				httpSession.setAttribute("account_number", accountData.getAccount_number());
+				System.out.println("Login Succesfully and value stored in session is:");
+				System.out.println("Account Number:" + httpSession.getAttribute("account_number"));
+				return ResponseEntity.ok(loginMessage);
 			}
-			httpSession = request.getSession();
-			httpSession.setAttribute("account_number", u.getAccount_number());
-			System.out.println("Login Succesfully and value stored in session is:");
-			System.out.println("Account Number:" + httpSession.getAttribute("account_number"));
-			return ResponseEntity.ok(true);
+
+			return ResponseEntity.ok(loginMessage);
 		} catch (Exception e) {
-			System.out.println("You send wrong request boy");
-			return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
+			System.out.println("Something went wrong");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 		}
 	}
 
