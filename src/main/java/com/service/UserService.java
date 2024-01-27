@@ -24,17 +24,30 @@ public class UserService {
 
 	public AccountInfo register(UserDetails userDetails) {
 		try {
-			User u = this.findByEmail(userDetails.getEmail());
+			
+			
 			accountInfo.setMsg("User Email Already Registered Please Do with another Email");
 			accountInfo.setAccount_number("0");
 			accountInfo.setAccount_password(0);
 			accountInfo.setAccount_creation_status(false);
-			if (u != null) {
+			if(userDetails.getEmail()==null) {
+				accountInfo.setMsg("Email must not be null");
 				return accountInfo;
 			}
+			User u = this.findByEmail(userDetails.getEmail());
+			
+			if(userDetails.getAge()<=0) {
+				accountInfo.setMsg("Age Must be greater than '0'");
+				return accountInfo;
+			}
+			if (u != null) {
+				System.out.println("User Already  present So we can create Account!Change Email");
+				return accountInfo;
+			}
+		
 			AccountData acd = accountCreationHelper.createAccountData(userDetails.getAge(), userDetails.getGender());
 			boolean b = this.save(userDetails, acd.getAccount_password(), acd.getAccount_number());
-
+			System.out.println("Registered user Save is DB status:"+b);
 			if (b) {
 				accountInfo.setMsg("Registration Done Successfully");
 				accountInfo.setAccount_number(acd.getAccount_number());

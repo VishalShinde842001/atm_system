@@ -53,14 +53,18 @@ public class MainController {
 
 	@PostMapping("/register")
 	public ResponseEntity<AccountInfo> register(@RequestBody UserDetails userDeatails) {
+		AccountInfo aci;
 		try {
-		AccountInfo aci = this.userService.register(userDeatails);
+			aci=this.userService.register(userDeatails);
 		if (aci.isAccount_creation_status()) {
+			System.out.println("Account Created Successfully:"+aci.getAccount_number());
 			return ResponseEntity.ok(aci);
 		}
-		return new ResponseEntity<AccountInfo>(aci, HttpStatus.NOT_IMPLEMENTED);}
+		System.out.println("Account Not Created");
+		return ResponseEntity.ok(aci);}
 		catch(Exception e) {
 			e.printStackTrace();
+			System.out.println("Error Occred While Creating Account");
 			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(null);
 		}
 	}

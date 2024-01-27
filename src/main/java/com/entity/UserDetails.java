@@ -19,5 +19,12 @@ public class UserDetails {
 	private String gender;
 	private int age;
 	private String email;
+	 public void setEmail(String email) {
+	        if (email != null) {
+	            this.email = email.toLowerCase();
+	        } else {
+	            this.email = null;
+	        }
+	    }
 
 }
