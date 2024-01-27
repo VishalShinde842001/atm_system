@@ -110,8 +110,8 @@ public class MainController {
 
 	}
 
-	@PutMapping("/deposit/{amount}")
-	public ResponseEntity<TransactionMessage> deposit(@PathVariable double amount) {
+	@PutMapping("/deposit")
+	public ResponseEntity<TransactionMessage> deposit(@RequestBody double amount) {
 		try {
 			if (httpSession == null) {
 				trm.setTrasaction_message("Actually Session is null!Try To Do With Login Again");
