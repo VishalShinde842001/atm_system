@@ -53,11 +53,16 @@ public class MainController {
 
 	@PostMapping("/register")
 	public ResponseEntity<AccountInfo> register(@RequestBody UserDetails userDeatails) {
+		try {
 		AccountInfo aci = this.userService.register(userDeatails);
 		if (aci.isAccount_creation_status()) {
 			return ResponseEntity.ok(aci);
 		}
-		return new ResponseEntity<AccountInfo>(aci, HttpStatus.NOT_IMPLEMENTED);
+		return new ResponseEntity<AccountInfo>(aci, HttpStatus.NOT_IMPLEMENTED);}
+		catch(Exception e) {
+			e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(null);
+		}
 	}
 
 	@PostMapping("/login")
