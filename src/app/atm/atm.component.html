@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATM Machine</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Font Awesome CSS (Make sure to include this in your project) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #00274c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      color: white;
+    }
+
+    #atm-container {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #atm-content {
+      background-color: #00274c;
+      padding: 20px; /* Adjusted padding */
+      border-radius: 15px;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+      text-align: center;
+      width: 30%; /* Adjusted container width */
+    }
+
+    #response-block {
+      background-color: #001a33;
+      padding: 10px; /* Adjusted padding */
+      border-radius: 10px;
+      box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+      text-align: center;
+      width: 40%; /* Adjusted container width */
+      height: 300px; /* Adjusted container height */
+      border: 3px solid #FFD700;
+      overflow: hidden;
+      margin: 0 auto;
+      max-width: 80%;
+      text-align: left;
+      padding: 10px;
+      overflow-y: auto;
+    }
+
+    #response-content {
+      color: #FFD700;
+      font-size: 16px; /* Adjusted font size */
+      font-weight: bold;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px; /* Adjusted gap */
+    }
+
+    button {
+      width: 100%;
+      padding: 10px; /* Adjusted padding */
+      font-size: 14px; /* Adjusted font size */
+      background-color: #003366;
+      border: 1px solid #003366;
+      color: white;
+      border-radius: 6px; /* Adjusted border radius */
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #004080;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px; /* Adjusted padding */
+      margin-bottom: 8px; /* Adjusted margin */
+      font-size: 14px; /* Adjusted font size */
+      border: 1px solid #003366;
+      border-radius: 6px;
+    }
+
+    .notification-bell {
+      position: absolute;
+      top: 5px; /* Adjusted top */
+      right: 5px; /* Adjusted right */
+      cursor: pointer;
+      color: #FFD700;
+      font-size: 18px; /* Adjusted font size */
+      background-color: #00274c;
+      padding: 8px; /* Adjusted padding */
+      border-radius: 50%;
+      box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    }
+    footer {
+      text-align: center;
+      background-color: #00274c;
+      color: white;
+      padding: 3px; /* Adjusted padding */
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+  </style>
+</head>
+<body>
+    
+  <div id="atm-container" class="container">
+    <div class="notification-bell">
+      <i class="fas fa-bell"></i>
+    </div>
+  
+    <div id="atm-content">
+      <h2 class="mb-2">ATM Machine</h2>
+      <input type="number" [(ngModel)]="amount" placeholder="Enter Amount/New Pin" required>
+  
+      <div class="button-group">
+        <button class="btn btn-outline-primary" (click)="withdraw()">Withdraw Cash</button>
+        <button class="btn btn-outline-success" (click)="deposit()">Deposit Cash</button>
+        <button class="btn btn-outline-info" (click)="checkBalance()">Check Balance</button>
+        <button class="btn btn-outline-warning">Transfer Funds</button>
+        <button class="btn btn-outline-danger" (click)="changPin()">Change PIN</button>
+        <button class="btn btn-outline-secondary">Mini Statement</button>
+        <button class="btn btn-outline-secondary" (click)="getAllNotification()">All Transactions</button>
+        <button class="btn btn-danger" (click)="logout()">Remove Card</button>
+      </div>
+    </div>
+  
+    <div id="response-block">
+      <div class="right-block">
+        <div style="background-color: #003366; padding: 10px; border-radius: 8px; width: 80%; max-width: 300px; margin: 0 auto;">
+          <h4 class="mb-2" style="font-size: 1em; text-align: center;">Account Number: {{account_number}}</h4>
+        </div>
+        <br>
+        <div class="transaction-block" *ngIf="transactionDone">
+          <!-- Separate block for transaction messages -->
+          <p>
+            <span style="font-size: 12px;">Date: {{transaction.date}}</span>
+            <span style="font-size: 12px; margin-left: 5px;">Time: {{transaction.time}}</span>
+          </p>
+          <p>Transaction ID: {{transaction.trasaction_id}}</p>
+          <p>Transaction Message: {{transaction.trasaction_message}}</p>
+          <div *ngIf="checkBal">
+            <p>Account Holder: {{balance.account_holder_first_name + ' ' + balance.account_holder_last_name}}</p>
+            <p>Account Number: {{balance.account_number}}</p>
+            <p>Current Balance: {{balance.account_balance}}</p>
+          </div>
+        </div>
+        <p *ngIf="errorMsg !== ''">{{errorMsg}}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS and Popper.js (required for Bootstrap) -->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-alpha1/dist/js/bootstrap.min.js"></script>
+  <footer>
+    &copy; 2024 Designed and Developed by Vishal Shinde
+  </footer>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-r7Q/rfD/7uI57Cq1J2f9uvdNBqAdD+5DzSN0mD9A0S6CqAg+vz1LEISb7n6ZaGz6" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: url('assets/img/banking.jpeg') center/cover no-repeat fixed;
+            background-attachment: fixed;
+            background-opacity: 0.5;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+            margin: 50px auto;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .form-title {
+            text-align: center;
+            color: #007bff;
+            font-size: 30px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .registration-form {
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .radio-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            color: #555;
+        }
+
+        .btn-submit {
+            background-color: #28a745;
+            border-color: #28a745;
+            width: 100%;
+            font-weight: bold;
+            letter-spacing: 1px;
+            padding: 12px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            background-color: #218838;
+            border-color: #218838;
+        }
+
+        .btn-submit:active,
+        .btn-submit:focus {
+            background-color: #1e7e34;
+            border-color: #1e7e34;
+        }
+
+        footer {
+            text-align: center;
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .error-msg {
+            color: #dc3545;
+            font-size: 16px;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="form-title">
+            🏦 Account Registration Form
+        </div>
+        <form class="registration-form" #userDetailsForm="ngForm" *ngIf="showRegistrationForm" (ngSubmit)="register()">
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input [(ngModel)]="userDetails.first_name" name="first_name" id="firstName" type="text"
+                    class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input [(ngModel)]="userDetails.last_name" name="last_name" id="lastName" type="text"
+                    class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label>Gender:</label>
+                <div class="radio-group">
+                    <div class="radio-label">
+                        <input type="radio" [(ngModel)]="userDetails.gender" name="gender" value="Male"
+                            class="form-check-input" required>
+                        <span>Male</span>
+                    </div>
+                    <div class="radio-label">
+                        <input type="radio" [(ngModel)]="userDetails.gender" name="gender" value="Female"
+                            class="form-check-input" required>
+                        <span>Female</span>
+                    </div>
+                    <div class="radio-label">
+                        <input type="radio" [(ngModel)]="userDetails.gender" name="gender" value="Other"
+                            class="form-check-input" required>
+                        <span>Other</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="age">Age:</label>
+                <input [(ngModel)]="userDetails.age" name="age" id="age" type="number" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input [(ngModel)]="userDetails.email" name="email" id="email" type="email" class="form-control"
+                    required>
+            </div>
+
+            <button type="submit" [disabled]="userDetailsForm.invalid" class="btn btn-submit">Register</button>
+        </form>
+
+        <p *ngIf="errorMsg !== ''" class="mt-3 error-msg">{{errorMsg}}</p>
+
+        <div *ngIf="shoeAccountInfo" class="mt-3">
+            <h1>{{accountInfo.msg}}</h1>
+            <h2>Account Information:</h2>
+            <p>Account Number: {{accountInfo.account_number}}</p>
+            <p>Account Password: {{accountInfo.account_password}}</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-eA1CqUxy2ov3ajNZl3rZ2ZZF1u8+z0Ct4FfJ6bCO9g8H2O8L+bXvc5uBXoo/PXP+"
+        crossorigin="anonymous"></script>
+
+    <footer>
+        &copy; 2024 Designed and Developed by Vishal Shinde
+    </footer>
+
+</body>
+
+</html>
