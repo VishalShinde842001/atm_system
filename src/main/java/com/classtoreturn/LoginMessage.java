@@ -18,4 +18,5 @@ public class LoginMessage {
 
 	private String login_msg;
 	private boolean login_status;
+	private String user_name;
 }

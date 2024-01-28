@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.classtoreturn.BalanceEnquiry;
-import com.classtoreturn.PasswordChangeResponse;
+
 import com.classtoreturn.TransactionMessage;
 import com.dao.TransactionDao;
 import com.dao.UserDao;
@@ -26,8 +26,6 @@ public class TransactionService {
 	private UserDao userDao;
 	@Autowired
 	private TransactionMessage transactionMessage;
-	@Autowired
-	private PasswordChangeResponse pcr;
 	@Autowired
 	private BalanceEnquiry ble;
 	@Autowired
@@ -169,39 +167,46 @@ public class TransactionService {
 		}
 	}
 
-	public PasswordChangeResponse changePin(int newPin, String account_number) {
+	public TransactionMessage changePin(int newPin, String account_number) {
 		try {
 			int b = validatePasswordLengthAs4(newPin);
 			if (b != 4) {
-				pcr.setPassword_change_message("Pin Must be 4 Digit only" + " You Entered " + b + " Digits");
-				pcr.setPassword_change_status(false);
+				transactionMessage.setTrasaction_message("Pin Must be 4 Digit only" + " You Entered " + b + " Digits");
+				transactionMessage.setTransaction_status(false);
+				return transactionMessage;
 			}
 			User u = this.findByAccountNumber(account_number);
 			if (u == null) {
-				pcr.setPassword_change_message("Some Error Occured Try After login again");
-				pcr.setPassword_change_status(false);
+				transactionMessage.setTrasaction_message("Some Error Occured Try After login again");
+				transactionMessage.setTransaction_status(false);
+				return transactionMessage;
 			}
 			int oldPass = u.getAccount_password();
+			if(oldPass==newPin) {
+				transactionMessage.setTrasaction_message("Try Again: New password should be distinct from the existing password.");
+				transactionMessage.setTransaction_status(false);
+				return transactionMessage;
+			}
 			u.setAccount_password(newPin);
 			this.userDao.save(u);
 			String trId = "PC" + trasactionIdCreation.createTransactionId();
 			String date = dateTimeCreation.dateAndTimeCreator("Date");
 			String time = dateTimeCreation.dateAndTimeCreator("Time");
-			pcr.setDate(date);
-			pcr.setTime(time);
-			pcr.setTransaction_id(trId);
-			pcr.setPassword_change_message(
-					"Password Updated Successfully! Old Password:" + oldPass + " New Password: " + newPin);
-			pcr.setPassword_change_status(true);
+			transactionMessage.setDate(date);
+			transactionMessage.setTime(time);
+			transactionMessage.setTrasaction_id(trId);
+			
+			transactionMessage.setTrasaction_message("Password Updated Successfully! Old Password:" + oldPass + " New Password: " + newPin);
+			transactionMessage.setTransaction_status(true);
 			this.saveTransaction(trId, account_number, null, null, "Pin Change", 0, u.getAccount_balance(),
 					u.getAccount_balance());
-			return pcr;
+			return transactionMessage;
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			pcr.setPassword_change_message("Some Error Occured Try After login again");
-			pcr.setPassword_change_status(false);
-			return pcr;
+			transactionMessage.setTrasaction_message("Some Error Occured Try After login again");
+			transactionMessage.setTransaction_status(false);
+			return transactionMessage;
 		}
 
 	}
@@ -266,33 +271,36 @@ public class TransactionService {
 	public MoneyTransferResponse moneyTransfer(String fromAccountNumber, String toAccountNumber, double amount) {
 		try {
 			if (fromAccountNumber.equals(toAccountNumber)) {
-				mtr.setMoney_transfer_status(false);
-				mtr.setMoney_transfer_message("You are trying to Transfer Money on your account so request rejected");
+				transactionMessage.setTransaction_status(false);
+				transactionMessage.setTrasaction_message("Transaction Rejected: You cannot transfer money to your own account. Please provide a different recipient account for the transfer.");
+				mtr.setTransaction(transactionMessage);
 				return mtr;
 			}
 			if (amount <= 0) {
-				mtr.setMoney_transfer_status(false);
-				mtr.setMoney_transfer_message("You are trying to Transfer 0rs or negative so request rejected");
+				transactionMessage.setTransaction_status(false);
+				transactionMessage.setTrasaction_message("Transaction Rejected: The transfer amount must be greater than zero. Please provide a valid and positive amount to proceed.");
+				mtr.setTransaction(transactionMessage);
 				return mtr;
+								
 			}
 			User u = this.findByAccountNumber(fromAccountNumber);
 			if (u == null) {
-				mtr.setMoney_transfer_status(false);
-				mtr.setMoney_transfer_message("Money Sender Id Problem Login Again To Transfer  Money");
-				return mtr;
-			}
+				transactionMessage.setTransaction_status(false);
+				transactionMessage.setTrasaction_message("Transaction Rejected: Unable to identify the sender. Please log in again to initiate the money transfer.");
+				mtr.setTransaction(transactionMessage);
+				return mtr;}
 			double senderBalance = u.getAccount_balance();
 			if (senderBalance < amount) {
-				mtr.setMoney_transfer_status(false);
-				mtr.setMoney_transfer_message("Money Not Sent Fund Insufficient : Your Balance: " + senderBalance
-						+ " You are trying to Transfer : " + amount);
+				transactionMessage.setTransaction_status(false);
+				transactionMessage.setTrasaction_message("Transaction Rejected: Insufficient Funds. Your current balance is  " +senderBalance + ". The requested transfer amount is " + amount + ". Please ensure sufficient funds are available and try again.");
+				mtr.setTransaction(transactionMessage);
 				return mtr;
 			}
 			User toAccount = this.findByAccountNumber(toAccountNumber);
 			if (toAccount == null) {
-				mtr.setMoney_transfer_status(false);
-				mtr.setMoney_transfer_message(
-						"You are Trying to Send Money But Receiver Account Number is wrong Check Again");
+				transactionMessage.setTransaction_status(false);
+				transactionMessage.setTrasaction_message("Money Transfer Failed: Unable to identify the recipient's account. Please double-check the account number and try again.");
+				mtr.setTransaction(transactionMessage);
 				return mtr;
 			}
 			double newBal = u.getAccount_balance() - amount;
@@ -303,22 +311,23 @@ public class TransactionService {
 			this.transactionMessage = this.withdraw(amount, fromAccountNumber);
 			this.transactionMessage = this.deposit(amount, toAccountNumber);
 
-			mtr.setMoney_transfer_status(true);
-			mtr.setTransaction_id("S/R" + this.transactionIdForMoneyTransfer);
+		    transactionMessage.setTransaction_status(true);
+			transactionMessage.setTrasaction_id("S/R" + this.transactionIdForMoneyTransfer);
+			
 			String date = dateTimeCreation.dateAndTimeCreator("Date");
 			String time = dateTimeCreation.dateAndTimeCreator("Time");
-			mtr.setDate(date);
-			mtr.setTime(time);
+			transactionMessage.setDate(date);
+			transactionMessage.setTime(time);
 			mtr.setReceiver(toAccountNumber);
-			mtr.setMoney_transfer_message("Money Transfer Successfully: " + amount + " Transfered To " + toAccountNumber
-					+ " Your Current Balance is:" + newBal);
+			transactionMessage.setTrasaction_message("Money Transfer Successful: ₹" + amount + " transferred to account " + toAccountNumber +
+        ". Your current balance is ₹" + newBal + ".");
 			return mtr;
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			mtr.setMoney_transfer_status(false);
-			mtr.setMoney_transfer_message("Some Error Occured Try Again");
-			return mtr;
+			transactionMessage.setTransaction_status(false);
+			transactionMessage.setTrasaction_message("Transaction Error: An error occurred during the money transfer. Please try again later or contact support for assistance.");
+		 return mtr;
 		}
 
 	}

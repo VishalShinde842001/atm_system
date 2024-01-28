@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.classtoreturn.BalanceEnquiry;
 import com.classtoreturn.LoginMessage;
-import com.classtoreturn.PasswordChangeResponse;
 import com.classtoreturn.TransactionMessage;
 import com.entity.AccountData;
 import com.entity.AccountInfo;
@@ -22,6 +21,7 @@ import com.entity.MoneyTransferDetails;
 import com.entity.MoneyTransferResponse;
 
 import com.entity.UserDetails;
+import com.helper.DateAndTimeCreation;
 import com.service.TransactionService;
 import com.service.UserService;
 
@@ -41,14 +41,14 @@ public class MainController {
 	@Autowired
 	private TransactionService transactionService;
 	@Autowired
-	private PasswordChangeResponse pcr;
-	@Autowired
 	private BalanceEnquiry be;
 	@Autowired
 	private MoneyTransferResponse mtr;
 
 	@Autowired
 	private MiniStatement miniStatement;
+	@Autowired
+	private DateAndTimeCreation dateAndTimeCreation;
 
 	private HttpSession httpSession;
 
@@ -114,83 +114,105 @@ public class MainController {
 	public ResponseEntity<TransactionMessage> deposit(@RequestBody double amount) {
 		try {
 			if (httpSession == null) {
-				trm.setTrasaction_message("Actually Session is null!Try To Do With Login Again");
+				trm.setTrasaction_message(
+						"Transaction Error: The session is currently unavailable. Please log in again to initiate the transaction.");
 				trm.setTransaction_status(false);
-				return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(trm);
+				return ResponseEntity.ok(trm);
+
 			}
 			if (httpSession.getAttribute("account_number") == null) {
-				trm.setTrasaction_message("Actually Session is null!Try To Do With Login Again");
+				trm.setTrasaction_message(
+						"Transaction Error: Your session has expired. Kindly log in again to proceed with the transaction.");
 				trm.setTransaction_status(false);
-				return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(trm);
+				return ResponseEntity.ok(trm);
 
 			}
 			String account_number = (String) httpSession.getAttribute("account_number");
 			trm = this.transactionService.deposit(amount, account_number);
 			if (trm.isTransaction_status()) {
+				String date = dateAndTimeCreation.dateAndTimeCreator("Date");
+				String time = dateAndTimeCreation.dateAndTimeCreator("Time");
+				trm.setDate(date);
+				trm.setTime(time);
 				return ResponseEntity.ok(trm);
 			}
-			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(trm);
+			return ResponseEntity.ok(trm);
 		} catch (Exception e) {
-			trm.setTrasaction_message("Session Already invalidated So login again for transaction");
+			trm.setTrasaction_message("Deposit Error: Your session has already been invalidated. Please log in again to initiate a deposit.");
 			trm.setTransaction_status(false);
 			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(trm);
+
 		}
 	}
 
-	@PutMapping("/withdraw/{amount}")
-	public ResponseEntity<TransactionMessage> withdraw(@PathVariable double amount) {
+	@PutMapping("/withdraw")
+	public ResponseEntity<TransactionMessage> withdraw(@RequestBody double amount) {
 		try {
 			if (httpSession == null) {
-				trm.setTrasaction_message("Actually Session is null!Try To Do With Login Again");
+				trm.setTrasaction_message(
+						"Transaction Error: The session is currently unavailable. Please log in again to initiate the transaction.");
 				trm.setTransaction_status(false);
-				return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(trm);
+				return ResponseEntity.ok(trm);
+
 			}
 			if (httpSession.getAttribute("account_number") == null) {
-				trm.setTrasaction_message("Actually Session is null!Try To Do With Login Again");
+				trm.setTrasaction_message(
+						"Transaction Error: Your session has expired. Kindly log in again to proceed with the transaction.");
 				trm.setTransaction_status(false);
-				return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(trm);
+				return ResponseEntity.ok(trm);
 
 			}
 			String account_number = (String) httpSession.getAttribute("account_number");
 			trm = this.transactionService.withdraw(amount, account_number);
 			if (trm.isTransaction_status()) {
+				String date = dateAndTimeCreation.dateAndTimeCreator("Date");
+				String time = dateAndTimeCreation.dateAndTimeCreator("Time");
+				trm.setDate(date);
+				trm.setTime(time);
 				return ResponseEntity.ok(trm);
 			}
-			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(trm);
+			return ResponseEntity.ok(trm);
 		} catch (Exception e) {
-			trm.setTrasaction_message("Session Already invalidated So login again for transaction");
+			trm.setTrasaction_message("Withdrawal Error: Your session has already been invalidated. Please log in again to attempt a withdrawal");
 			trm.setTransaction_status(false);
 			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(trm);
+
+
 		}
 	}
 
-	@PutMapping("/changepin/{pin}")
-	public ResponseEntity<PasswordChangeResponse> changePin(@PathVariable int pin) {
+	@PutMapping("/changePin")
+	public ResponseEntity<TransactionMessage> changePin(@RequestBody int pin) {
 		try {
 			if (httpSession == null) {
-				pcr.setPassword_change_message("Actually Session is null!Try To Do With Login Again");
-				pcr.setPassword_change_status(false);
-				return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(pcr);
+				trm.setTrasaction_message(
+						"Transaction Error: The session is currently unavailable. Please log in again to initiate the transaction.");
+				trm.setTransaction_status(false);
+				return ResponseEntity.ok(trm);
+
 			}
 			if (httpSession.getAttribute("account_number") == null) {
-				pcr.setPassword_change_message("Actually Session is null!Try To Do With Login Again");
-				pcr.setPassword_change_status(false);
-				return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(pcr);
+				trm.setTrasaction_message(
+						"Transaction Error: Your session has expired. Kindly log in again to proceed with the transaction.");
+				trm.setTransaction_status(false);
+				return ResponseEntity.ok(trm);
 
 			}
 			String account_number = (String) httpSession.getAttribute("account_number");
-			pcr = this.transactionService.changePin(pin, account_number);
+			trm = this.transactionService.changePin(pin, account_number);
+			
 
-			if (pcr.isPassword_change_status()) {
-
-				return ResponseEntity.ok(pcr);
-			}
-			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(pcr);
+			/*
+			 * if (pcr.isPassword_change_status()) {
+			 * 
+			 * return ResponseEntity.ok(pcr); }
+			 */
+			return ResponseEntity.ok(trm);
 		} catch (Exception e) {
 			e.printStackTrace();
-			pcr.setPassword_change_message("Session Already invalidated So login again for transaction");
-			pcr.setPassword_change_status(false);
-			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(pcr);
+			trm.setTrasaction_message("Pin Change Error: Your session has already been invalidated. Please log in again to perform the transaction.");
+			trm.setTransaction_status(false);
+			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(trm);
 		}
 
 	}
@@ -229,21 +251,27 @@ public class MainController {
 	@PutMapping("/moneyTransfer")
 	public ResponseEntity<MoneyTransferResponse> moneyTransfer(@RequestBody MoneyTransferDetails mtd) {
 		if (httpSession == null) {
-			mtr.setMoney_transfer_message("Session is Null So Login Again To Transfer Money");
-			mtr.setMoney_transfer_status(false);
-			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(mtr);
+			trm.setTrasaction_message(
+					"Transaction Error: The session is currently unavailable. Please log in again to initiate the transaction.");
+			trm.setTransaction_status(false);
+			mtr.setTransaction(trm);
+			return ResponseEntity.ok(mtr);
+
 		}
 		if (httpSession.getAttribute("account_number") == null) {
-			mtr.setMoney_transfer_message("Session is Null So Login Again To Transfer Money");
-			mtr.setMoney_transfer_status(false);
-			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(mtr);
+			trm.setTrasaction_message(
+					"Transaction Error: Your session has expired. Kindly log in again to proceed with the transaction.");
+			trm.setTransaction_status(false);
+			mtr.setTransaction(trm);
+			return ResponseEntity.ok(mtr);
+
 		}
 		String account_number = (String) httpSession.getAttribute("account_number");
 		mtr = this.transactionService.moneyTransfer(account_number, mtd.getAccount_number(), mtd.getAmount());
-		if (mtr.isMoney_transfer_status()) {
+		if (mtr.getTransaction().isTransaction_status()) {
 			return ResponseEntity.ok(mtr);
 		}
-		return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(mtr);
+		return ResponseEntity.ok(mtr);
 
 	}
 

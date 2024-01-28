@@ -2,6 +2,8 @@ package com.entity;
 
 import org.springframework.stereotype.Component;
 
+import com.classtoreturn.TransactionMessage;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,11 +18,7 @@ import lombok.ToString;
 @Component
 public class MoneyTransferResponse {
 
-	private String date;
-	private String time;
-	private boolean money_transfer_status;
-	private String money_transfer_message;
-	private String transaction_id;
+	private TransactionMessage transaction;
 	private String receiver;
 	
 	

@@ -110,6 +110,7 @@ public class UserService {
 				if (u.get().getAccount_password() == accountData.getAccount_password()) {
 					loginMessage.setLogin_msg("Login Successfully");
 					loginMessage.setLogin_status(true);
+					loginMessage.setUser_name(u.get().getUserDetails().getFirst_name()+" "+u.get().getUserDetails().getLast_name());;
 					return loginMessage;
 				}
 				loginMessage.setLogin_msg("Wrong Password");
