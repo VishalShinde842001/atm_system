@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -138,7 +137,8 @@ public class MainController {
 			}
 			return ResponseEntity.ok(trm);
 		} catch (Exception e) {
-			trm.setTrasaction_message("Deposit Error: Your session has already been invalidated. Please log in again to initiate a deposit.");
+			trm.setTrasaction_message(
+					"Deposit Error: Your session has already been invalidated. Please log in again to initiate a deposit.");
 			trm.setTransaction_status(false);
 			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(trm);
 
@@ -173,10 +173,10 @@ public class MainController {
 			}
 			return ResponseEntity.ok(trm);
 		} catch (Exception e) {
-			trm.setTrasaction_message("Withdrawal Error: Your session has already been invalidated. Please log in again to attempt a withdrawal");
+			trm.setTrasaction_message(
+					"Withdrawal Error: Your session has already been invalidated. Please log in again to attempt a withdrawal");
 			trm.setTransaction_status(false);
 			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(trm);
-
 
 		}
 	}
@@ -200,7 +200,6 @@ public class MainController {
 			}
 			String account_number = (String) httpSession.getAttribute("account_number");
 			trm = this.transactionService.changePin(pin, account_number);
-			
 
 			/*
 			 * if (pcr.isPassword_change_status()) {
@@ -210,7 +209,8 @@ public class MainController {
 			return ResponseEntity.ok(trm);
 		} catch (Exception e) {
 			e.printStackTrace();
-			trm.setTrasaction_message("Pin Change Error: Your session has already been invalidated. Please log in again to perform the transaction.");
+			trm.setTrasaction_message(
+					"Pin Change Error: Your session has already been invalidated. Please log in again to perform the transaction.");
 			trm.setTransaction_status(false);
 			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(trm);
 		}
@@ -221,27 +221,32 @@ public class MainController {
 	public ResponseEntity<BalanceEnquiry> checkBalance() {
 		try {
 			if (httpSession == null) {
-				be.setEnquiry_message("Actually Session is null!Try To Do With Login Again");
-				be.setBalance_enquiry_status(false);
-				return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(be);
+				trm.setTrasaction_message(
+						"Transaction Error: The session is currently unavailable. Please log in again to initiate the transaction.");
+				trm.setTransaction_status(false);
+				be.setTransactionMessage(trm);
+				return ResponseEntity.ok(be);
+
 			}
 			if (httpSession.getAttribute("account_number") == null) {
-				be.setEnquiry_message("Actually Session is null!Try To Do With Login Again");
-				be.setBalance_enquiry_status(false);
-				return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(be);
-			}
-			String account_number = (String) httpSession.getAttribute("account_number");
-			be = this.transactionService.checkBalance(account_number);
-			if (be.isBalance_enquiry_status()) {
+				trm.setTrasaction_message(
+						"Transaction Error: Your session has expired. Kindly log in again to proceed with the transaction.");
+				trm.setTransaction_status(false);
+				be.setTransactionMessage(trm);
 				return ResponseEntity.ok(be);
 			}
 
-			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(be);
+			String account_number = (String) httpSession.getAttribute("account_number");
+			be = this.transactionService.checkBalance(account_number);
+
+			return ResponseEntity.ok(be);
 
 		} catch (Exception r) {
 			r.printStackTrace();
-			be.setEnquiry_message("Somthing Error occured in Check Balance Login Agian and try");
-			be.setBalance_enquiry_status(false);
+			trm.setTrasaction_message("Somthing Error occured in Check Balance Login Agian and try");
+
+			trm.setTransaction_status(false);
+			be.setTransactionMessage(trm);
 			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(be);
 
 		}

@@ -169,6 +169,11 @@ public class TransactionService {
 
 	public TransactionMessage changePin(int newPin, String account_number) {
 		try {
+			if(newPin<0) {
+				transactionMessage.setTrasaction_message("Password Can't be Negative");
+				transactionMessage.setTransaction_status(false);
+				return transactionMessage;
+			}
 			int b = validatePasswordLengthAs4(newPin);
 			if (b != 4) {
 				transactionMessage.setTrasaction_message("Pin Must be 4 Digit only" + " You Entered " + b + " Digits");
@@ -237,31 +242,34 @@ public class TransactionService {
 		try {
 			User u = this.findByAccountNumber(account_number);
 			if (u == null) {
-				ble.setEnquiry_message("Actuallly Login Again To Get Balance Info");
-				ble.setBalance_enquiry_status(false);
+				transactionMessage.setTrasaction_message("Actuallly Login Again To Get Balance Info");
+				transactionMessage.setTransaction_status(false);
+				ble.setTransactionMessage(transactionMessage);
 				return ble;
 			}
-			ble.setEnquiry_message("Balance Enquiry");
+			transactionMessage.setTrasaction_message("Balance Enquiry");
 			String trId = "BE" + trasactionIdCreation.createTransactionId();
 
 			String date = dateTimeCreation.dateAndTimeCreator("Date");
 			String time = dateTimeCreation.dateAndTimeCreator("Time");
 			double bal = u.getAccount_balance();
-			ble.setTransaction_id(trId);
-			ble.setDate(date);
-			ble.setTime(time);
+			transactionMessage.setDate(date);
+			transactionMessage.setTime(date);
+			
 			ble.setAccount_holder_first_name(u.getUserDetails().getFirst_name());
 			ble.setAccount_holder_last_name(u.getUserDetails().getLast_name());
 			ble.setAccount_number(u.getAccount_number());
-			ble.setBalance_enquiry_status(true);
+			transactionMessage.setTransaction_status(true);
+			ble.setTransactionMessage(transactionMessage);
 			ble.setAccount_balance(u.getAccount_balance());
 			this.saveTransaction(trId, u.getAccount_number(), null, null, "Balance Enquiry", 0, bal, bal);
 			return ble;
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			ble.setEnquiry_message("Actuallly Login Again To Get Balance Info");
-			ble.setBalance_enquiry_status(false);
+			transactionMessage.setTrasaction_message("Actuallly Login Again To Get Balance Info");
+			transactionMessage.setTransaction_status(false);
+			ble.setTransactionMessage(transactionMessage);
 			return ble;
 
 		}
