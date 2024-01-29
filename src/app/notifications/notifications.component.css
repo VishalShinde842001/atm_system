@@ -1,0 +1,66 @@
+/* Add this to your global styles or component-specific styles */
+.transaction-notifications {
+    max-width: 800px; /* Increase the maximum width based on your design */
+    margin: 20px auto; /* Center the notifications horizontally */
+    padding: 20px;
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  h2 {
+    color: #333;
+  }
+  
+  .transaction-item {
+    margin-top: 10px;
+    color:red;
+    transition: background-color 0.3s ease; 
+  }
+  
+  .notification-card {
+    padding: 15px;
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    margin-top: 10px;
+    transition: background-color 0.3s ease; 
+    cursor: pointer;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .notification-card:hover {
+    background-color: #e6f7ff; /* Change the background color on hover */
+  }
+  
+  .notification-message {
+    margin: 0;
+    font-size: 16px;
+    color: #333;
+  }
+
+  .transaction-item:hover {
+    background-color: #090909ec;
+    cursor: pointer;
+  }
+footer {
+    text-align: center;
+    background-color: #00274c;
+    color: white;
+    padding: 1px;
+    position: fixed;
+    bottom: 0;
+    left: 0; /* Ensure the footer spans the entire width */
+    width: 100%;
+  }
+  
+  /* Optional: Add some hover effect */
+  footer:hover {
+    background-color: #004080;
+    cursor: pointer;
+  }
+  
+  
+  
+  /* Add more styles as needed */
+  

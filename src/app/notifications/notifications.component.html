@@ -6,8 +6,10 @@
   <div *ngIf="transactions.length > 0; else noTransactions">
     <!-- Display each transaction -->
     <div class="transaction-item" *ngFor="let transaction of transactions">
-      <p>{{ transaction }}</p>
-      <hr />
+      <div class="notification-card">
+        <p class="notification-message">{{ transaction }}</p>
+        <hr />
+      </div>
     </div>
   </div>
 
@@ -15,3 +17,6 @@
     <p>No transactions available.</p>
   </ng-template>
 </div>
+<footer>
+  &copy; 2024 Designed and Developed by Vishal Shinde
+</footer>
