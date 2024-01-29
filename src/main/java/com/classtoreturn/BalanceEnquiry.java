@@ -22,6 +22,5 @@ public class BalanceEnquiry {
 	private String account_number;
 	private double account_balance;
 	
-  
-
 }
+  

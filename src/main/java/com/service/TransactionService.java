@@ -18,7 +18,10 @@ import com.entity.Transaction;
 import com.entity.User;
 import com.helper.DateAndTimeCreation;
 import com.helper.TransactionIdCreation;
+
+import java.util.ArrayList;
 import java.util.List;
+
 @Service
 public class TransactionService {
 
@@ -36,7 +39,7 @@ public class TransactionService {
 	private TransactionIdCreation trasactionIdCreation;
 	@Autowired
 	private DateAndTimeCreation dateTimeCreation;
-	@Autowired 
+	@Autowired
 	private MiniStatement miniStatement;
 
 	private boolean isTransaactionCalled;
@@ -169,7 +172,7 @@ public class TransactionService {
 
 	public TransactionMessage changePin(int newPin, String account_number) {
 		try {
-			if(newPin<0) {
+			if (newPin < 0) {
 				transactionMessage.setTrasaction_message("Password Can't be Negative");
 				transactionMessage.setTransaction_status(false);
 				return transactionMessage;
@@ -187,8 +190,9 @@ public class TransactionService {
 				return transactionMessage;
 			}
 			int oldPass = u.getAccount_password();
-			if(oldPass==newPin) {
-				transactionMessage.setTrasaction_message("Try Again: New password should be distinct from the existing password.");
+			if (oldPass == newPin) {
+				transactionMessage.setTrasaction_message(
+						"Try Again: New password should be distinct from the existing password.");
 				transactionMessage.setTransaction_status(false);
 				return transactionMessage;
 			}
@@ -200,8 +204,9 @@ public class TransactionService {
 			transactionMessage.setDate(date);
 			transactionMessage.setTime(time);
 			transactionMessage.setTrasaction_id(trId);
-			
-			transactionMessage.setTrasaction_message("Password Updated Successfully! Old Password:" + oldPass + " New Password: " + newPin);
+
+			transactionMessage.setTrasaction_message(
+					"Password Updated Successfully! Old Password:" + oldPass + " New Password: " + newPin);
 			transactionMessage.setTransaction_status(true);
 			this.saveTransaction(trId, account_number, null, null, "Pin Change", 0, u.getAccount_balance(),
 					u.getAccount_balance());
@@ -254,8 +259,8 @@ public class TransactionService {
 			String time = dateTimeCreation.dateAndTimeCreator("Time");
 			double bal = u.getAccount_balance();
 			transactionMessage.setDate(date);
-			transactionMessage.setTime(date);
-			
+			transactionMessage.setTime(time);
+
 			ble.setAccount_holder_first_name(u.getUserDetails().getFirst_name());
 			ble.setAccount_holder_last_name(u.getUserDetails().getLast_name());
 			ble.setAccount_number(u.getAccount_number());
@@ -280,34 +285,42 @@ public class TransactionService {
 		try {
 			if (fromAccountNumber.equals(toAccountNumber)) {
 				transactionMessage.setTransaction_status(false);
-				transactionMessage.setTrasaction_message("Transaction Rejected: You cannot transfer money to your own account. Please provide a different recipient account for the transfer.");
+				transactionMessage.setTrasaction_message(
+						"Transaction Rejected: You cannot transfer money to your own account. Please provide a different recipient account for the transfer.");
 				mtr.setTransaction(transactionMessage);
 				return mtr;
 			}
 			if (amount <= 0) {
 				transactionMessage.setTransaction_status(false);
-				transactionMessage.setTrasaction_message("Transaction Rejected: The transfer amount must be greater than zero. Please provide a valid and positive amount to proceed.");
+				transactionMessage.setTrasaction_message(
+						"Transaction Rejected: The transfer amount must be greater than zero. Please provide a valid and positive amount to proceed.");
 				mtr.setTransaction(transactionMessage);
 				return mtr;
-								
+
 			}
 			User u = this.findByAccountNumber(fromAccountNumber);
 			if (u == null) {
 				transactionMessage.setTransaction_status(false);
-				transactionMessage.setTrasaction_message("Transaction Rejected: Unable to identify the sender. Please log in again to initiate the money transfer.");
+				transactionMessage.setTrasaction_message(
+						"Transaction Rejected: Unable to identify the sender. Please log in again to initiate the money transfer.");
 				mtr.setTransaction(transactionMessage);
-				return mtr;}
+				return mtr;
+			}
 			double senderBalance = u.getAccount_balance();
 			if (senderBalance < amount) {
 				transactionMessage.setTransaction_status(false);
-				transactionMessage.setTrasaction_message("Transaction Rejected: Insufficient Funds. Your current balance is  " +senderBalance + ". The requested transfer amount is " + amount + ". Please ensure sufficient funds are available and try again.");
+				transactionMessage
+						.setTrasaction_message("Transaction Rejected: Insufficient Funds. Your current balance is  "
+								+ senderBalance + ". The requested transfer amount is " + amount
+								+ ". Please ensure sufficient funds are available and try again.");
 				mtr.setTransaction(transactionMessage);
 				return mtr;
 			}
 			User toAccount = this.findByAccountNumber(toAccountNumber);
 			if (toAccount == null) {
 				transactionMessage.setTransaction_status(false);
-				transactionMessage.setTrasaction_message("Money Transfer Failed: Unable to identify the recipient's account. Please double-check the account number and try again.");
+				transactionMessage.setTrasaction_message(
+						"Money Transfer Failed: Unable to identify the recipient's account. Please double-check the account number and try again.");
 				mtr.setTransaction(transactionMessage);
 				return mtr;
 			}
@@ -319,54 +332,135 @@ public class TransactionService {
 			this.transactionMessage = this.withdraw(amount, fromAccountNumber);
 			this.transactionMessage = this.deposit(amount, toAccountNumber);
 
-		    transactionMessage.setTransaction_status(true);
+			transactionMessage.setTransaction_status(true);
 			transactionMessage.setTrasaction_id("S/R" + this.transactionIdForMoneyTransfer);
-			
+
 			String date = dateTimeCreation.dateAndTimeCreator("Date");
 			String time = dateTimeCreation.dateAndTimeCreator("Time");
 			transactionMessage.setDate(date);
 			transactionMessage.setTime(time);
 			mtr.setReceiver(toAccountNumber);
-			transactionMessage.setTrasaction_message("Money Transfer Successful: ₹" + amount + " transferred to account " + toAccountNumber +
-        ". Your current balance is ₹" + newBal + ".");
+			transactionMessage.setTrasaction_message("Money Transfer Successful: ₹" + amount
+					+ " transferred to account " + toAccountNumber + ". Your current balance is ₹" + newBal + ".");
 			return mtr;
 
 		} catch (Exception e) {
 			e.printStackTrace();
 			transactionMessage.setTransaction_status(false);
-			transactionMessage.setTrasaction_message("Transaction Error: An error occurred during the money transfer. Please try again later or contact support for assistance.");
-		 return mtr;
+			transactionMessage.setTrasaction_message(
+					"Transaction Error: An error occurred during the money transfer. Please try again later or contact support for assistance.");
+			return mtr;
 		}
 
 	}
-	public MiniStatement miniStatement(String account_number){
+
+	public MiniStatement miniStatement(String account_number) {
 		try {
-			User u=this.findByAccountNumber(account_number);
+			User u = this.findByAccountNumber(account_number);
 			this.miniStatement.setMinistatment_msg("Can't find user Login Again");
 			this.miniStatement.setMinistatment_status(false);
-			if(u==null) {
+			if (u == null) {
 				return miniStatement;
 			}
-			List<Transaction> t= this.trdao.miniStatment(account_number);
-			if(!t.isEmpty()) {
+			List<Transaction> t = this.trdao.miniStatment(account_number);
+			if (!t.isEmpty()) {
 				this.miniStatement.setTransaction(t);
 				this.miniStatement.setMinistatment_status(true);
-				this.miniStatement.setMinistatment_msg("Mini Statement Of Account Number:"+account_number);
+				this.miniStatement.setMinistatment_msg("Mini Statement Of Account Number:" + account_number);
 				return miniStatement;
-			
+
 			}
 			this.miniStatement.setTransaction(t);
 			this.miniStatement.setMinistatment_status(true);
-			this.miniStatement.setMinistatment_msg("Mini Statement of User Don't Have any record:"+account_number);
+			this.miniStatement.setMinistatment_msg("Mini Statement of User Don't Have any record:" + account_number);
 			return miniStatement;
-			
-		}
-		catch(Exception e) {
+
+		} catch (Exception e) {
 			e.printStackTrace();
 			this.miniStatement.setMinistatment_msg("Error occured While getting Mini Statement");
 			this.miniStatement.setMinistatment_status(false);
 			return miniStatement;
 		}
-		
+
 	}
+
+	public List<String> getAllTransactionNotification(String account_number) {
+
+		try {
+			List<Transaction> transactions = this.trdao.findTransactionsByAccountNumberSortedByTime(account_number);
+			if (transactions.isEmpty()) {
+				return null;
+			}
+			 
+			User u=this.findByAccountNumber(account_number);
+			String account_holder=u.getUserDetails().getFirst_name()+" "+u.getUserDetails().getLast_name();
+			return this.transactionsToNotification(transactions,account_holder);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	public List<String> transactionsToNotification(List<Transaction> transactions,String account_holder) {
+		List<String> notifications = new ArrayList<String>();
+
+		for (Transaction transaction : transactions) {
+			String notification = generateNotification(transaction,account_holder);
+			notifications.add(notification);
+		}
+
+		return notifications;
+	}
+
+	private String generateNotification(Transaction transaction,String account_holder) {
+		String notification;
+
+	
+		switch (transaction.getTransaction_type()) {
+		case "Deposit":
+			notification = String.format(
+					"A deposit of %.2f has been successfully credited to your account (%s) on %s. Your new balance is %.2f. Transaction ID: %s.",
+					transaction.getAmount(), transaction.getAccount_number(), transaction.getTime(),
+				 transaction.getCurr_account_balance(), transaction.getTransaction_id());
+			break;
+		case "Withdraw":
+			notification = String.format(
+					"A withdrawal of %.2f has been successfully processed from your account (%s) on %s . Your new balance is %.2f. Transaction ID: %s.",
+					transaction.getAmount(), transaction.getAccount_number(), transaction.getTime(),
+					 transaction.getCurr_account_balance(), transaction.getTransaction_id());
+			break;
+		case "Pin Change":
+			notification = String.format(
+					"Your ATM PIN has been successfully changed account number:(%s) on %s .If you did not make this change, please contact customer support immediately. Transaction ID: %s.",
+					transaction.getAccount_number(), transaction.getTime(), transaction.getTransaction_id());
+			break;
+		case "Money Transfer":
+			notification = String.format(
+					"A sum of %.2f has been successfully transferred from your account (%s) to another account (%s) on %s . Your new balance is %.2f. Transaction ID: %s.",
+					transaction.getAmount(), transaction.getAccount_number(), transaction.getReceiver(),
+					transaction.getTime(), transaction.getCurr_account_balance(),
+					transaction.getTransaction_id());
+			break;
+		case "Money Received":
+			notification = String.format(
+					"You have received a transfer of %.2f in your account (%s) from another account (%s) on %s . Your new balance is %.2f. Transaction ID: %s.",
+					transaction.getAmount(), transaction.getReceiver(), transaction.getAccount_number(),
+					transaction.getTime(), transaction.getTime(), transaction.getCurr_account_balance(),
+					transaction.getTransaction_id());
+			break;
+		case "Balance Enquiry":
+			notification = String.format(
+					"Dear %s,This is to confirm that you have successfully checked the balance of your account (%s) on %s . Your current balance is %.2f.Thank you for using our services. If you have any further inquiries or require assistance, feel free to contact us.Best regards, Transaction ID: %s",
+					account_holder, transaction.getAccount_number(), transaction.getTime(),
+					 transaction.getCurr_account_balance(), "ATM Service Vishal",transaction.getTransaction_id());
+			break;
+		default:
+			notification = "Unsupported transaction type: " + transaction.getTransaction_type();
+			break;
+		}
+
+		return notification;
+	}
+
 }

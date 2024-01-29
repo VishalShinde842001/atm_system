@@ -1,5 +1,7 @@
 package com.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +20,7 @@ import com.entity.AccountInfo;
 import com.entity.MiniStatement;
 import com.entity.MoneyTransferDetails;
 import com.entity.MoneyTransferResponse;
-
+import com.entity.Transaction;
 import com.entity.UserDetails;
 import com.helper.DateAndTimeCreation;
 import com.service.TransactionService;
@@ -303,6 +305,29 @@ public class MainController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(this.miniStatement);
 
 		}
+	}
+	@GetMapping("/getAllTransactions")
+	public List<String> getAllTransaction(){
+		try {
+			if (httpSession == null) {
+				this.miniStatement.setMinistatment_status(false);
+				this.miniStatement.setMinistatment_msg("Can't find session So Login Again");
+				return null;
+			}
+			if (httpSession.getAttribute("account_number") == null) {
+				this.miniStatement.setMinistatment_status(false);
+				this.miniStatement.setMinistatment_msg("Can't find user So Login Again");
+				return null;
+			}
+			String account_number=(String)httpSession.getAttribute("account_number");
+			return this.transactionService.getAllTransactionNotification(account_number);
+			
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		
 	}
 
 }
