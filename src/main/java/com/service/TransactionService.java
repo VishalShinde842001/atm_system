@@ -283,6 +283,20 @@ public class TransactionService {
 
 	public MoneyTransferResponse moneyTransfer(String fromAccountNumber, String toAccountNumber, double amount) {
 		try {
+			if(toAccountNumber==null) {
+				transactionMessage.setTransaction_status(false);
+				transactionMessage.setTrasaction_message(
+						"Transaction Rejected: unable to identify the recipient's account. Please double-check the account number,account number length is not euqal to 12.You sent null value");
+				mtr.setTransaction(transactionMessage);
+				return mtr;
+			}
+			if(toAccountNumber.length()!=12) {
+				transactionMessage.setTransaction_status(false);
+				transactionMessage.setTrasaction_message(
+						"Transaction Rejected: unable to identify the recipient's account. Please double-check the account number,account number length is not euqal to 12."+" Your Account Number legnth:"+toAccountNumber.length());
+				mtr.setTransaction(transactionMessage);
+				return mtr;
+			}
 			if (fromAccountNumber.equals(toAccountNumber)) {
 				transactionMessage.setTransaction_status(false);
 				transactionMessage.setTrasaction_message(
@@ -298,6 +312,7 @@ public class TransactionService {
 				return mtr;
 
 			}
+
 			User u = this.findByAccountNumber(fromAccountNumber);
 			if (u == null) {
 				transactionMessage.setTransaction_status(false);
@@ -316,8 +331,12 @@ public class TransactionService {
 				mtr.setTransaction(transactionMessage);
 				return mtr;
 			}
-			User toAccount = this.findByAccountNumber(toAccountNumber);
-			if (toAccount == null) {
+			System.out.println("To Account Number"+toAccountNumber);
+			Optional<User> toAccount = this.userDao.findById(toAccountNumber);
+			if (toAccount.isEmpty()) {
+
+				System.out.println(toAccount);
+
 				transactionMessage.setTransaction_status(false);
 				transactionMessage.setTrasaction_message(
 						"Money Transfer Failed: Unable to identify the recipient's account. Please double-check the account number and try again.");
@@ -391,10 +410,10 @@ public class TransactionService {
 			if (transactions.isEmpty()) {
 				return null;
 			}
-			 
-			User u=this.findByAccountNumber(account_number);
-			String account_holder=u.getUserDetails().getFirst_name()+" "+u.getUserDetails().getLast_name();
-			return this.transactionsToNotification(transactions,account_holder);
+
+			User u = this.findByAccountNumber(account_number);
+			String account_holder = u.getUserDetails().getFirst_name() + " " + u.getUserDetails().getLast_name();
+			return this.transactionsToNotification(transactions, account_holder);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -402,33 +421,36 @@ public class TransactionService {
 		}
 	}
 
-	public List<String> transactionsToNotification(List<Transaction> transactions,String account_holder) {
+	public List<String> transactionsToNotification(List<Transaction> transactions, String account_holder) {
 		List<String> notifications = new ArrayList<String>();
 
 		for (Transaction transaction : transactions) {
-			String notification = generateNotification(transaction,account_holder);
+			String notification = generateNotification(transaction, account_holder);
 			notifications.add(notification);
 		}
 
 		return notifications;
 	}
 
-	private String generateNotification(Transaction transaction,String account_holder) {
+	private String generateNotification(Transaction transaction, String account_holder) {
 		String notification;
+		System.out.println(transaction);
+		 if (transaction == null || transaction.getTransaction_type() == null) {
+		        return "Invalid transaction data.";
+		    }
 
-	
 		switch (transaction.getTransaction_type()) {
 		case "Deposit":
 			notification = String.format(
 					"A deposit of %.2f has been successfully credited to your account (%s) on %s. Your new balance is %.2f. Transaction ID: %s.",
-					transaction.getAmount(), transaction.getAccount_number(), transaction.getTime(),
-				 transaction.getCurr_account_balance(), transaction.getTransaction_id());
+					(double)transaction.getAmount(), transaction.getAccount_number(), transaction.getTime(),
+					(double)transaction.getCurr_account_balance(), transaction.getTransaction_id());
 			break;
 		case "Withdraw":
 			notification = String.format(
 					"A withdrawal of %.2f has been successfully processed from your account (%s) on %s . Your new balance is %.2f. Transaction ID: %s.",
-					transaction.getAmount(), transaction.getAccount_number(), transaction.getTime(),
-					 transaction.getCurr_account_balance(), transaction.getTransaction_id());
+					(double)transaction.getAmount(), transaction.getAccount_number(), transaction.getTime(),
+					(double)transaction.getCurr_account_balance(), transaction.getTransaction_id());
 			break;
 		case "Pin Change":
 			notification = String.format(
@@ -438,22 +460,21 @@ public class TransactionService {
 		case "Money Transfer":
 			notification = String.format(
 					"A sum of %.2f has been successfully transferred from your account (%s) to another account (%s) on %s . Your new balance is %.2f. Transaction ID: %s.",
-					transaction.getAmount(), transaction.getAccount_number(), transaction.getReceiver(),
-					transaction.getTime(), transaction.getCurr_account_balance(),
-					transaction.getTransaction_id());
+					(double)transaction.getAmount(), transaction.getAccount_number(), transaction.getReceiver(),
+					transaction.getTime(), (double)transaction.getCurr_account_balance(), transaction.getTransaction_id());
 			break;
 		case "Money Received":
 			notification = String.format(
 					"You have received a transfer of %.2f in your account (%s) from another account (%s) on %s . Your new balance is %.2f. Transaction ID: %s.",
 					transaction.getAmount(), transaction.getReceiver(), transaction.getAccount_number(),
-					transaction.getTime(), transaction.getTime(), transaction.getCurr_account_balance(),
+					transaction.getTime(),(double)transaction.getCurr_account_balance(),
 					transaction.getTransaction_id());
 			break;
 		case "Balance Enquiry":
 			notification = String.format(
-					"Dear %s,This is to confirm that you have successfully checked the balance of your account (%s) on %s . Your current balance is %.2f.Thank you for using our services. If you have any further inquiries or require assistance, feel free to contact us.Best regards, Transaction ID: %s",
+					"Dear %s,This is to confirm that you have successfully checked the balance of your account (%s) on %s . Your current balance is %.2f.Thank you for using our services (%s). If you have any further inquiries or require assistance, feel free to contact us.Best regards, Transaction ID: %s",
 					account_holder, transaction.getAccount_number(), transaction.getTime(),
-					 transaction.getCurr_account_balance(), "ATM Service Vishal",transaction.getTransaction_id());
+					transaction.getCurr_account_balance(), "ATM Service Vishal", transaction.getTransaction_id());
 			break;
 		default:
 			notification = "Unsupported transaction type: " + transaction.getTransaction_type();
