@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AtmService, BalanceEnquiry, TransactionMessage } from '../atm.service';
+import { AtmService, BalanceEnquiry, MoneyTransferDetails, MoneyTransferResponse, TransactionMessage } from '../atm.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -28,8 +28,10 @@ export class AtmComponent implements OnInit {
   errorMsg="";
   transactionDone=false;
   checkBal=false
+  showTransferBlock: boolean = false;
+  receiverAccountNumber: string = '';
   transaction:TransactionMessage=new TransactionMessage("","","",false,"");
- 
+ moneyTransferDetails:MoneyTransferDetails=new MoneyTransferDetails(this.receiverAccountNumber,this.amount)
   balance:BalanceEnquiry=new BalanceEnquiry(this.transaction,"","","",0);
 
   getAllNotification(){
@@ -53,7 +55,55 @@ export class AtmComponent implements OnInit {
     
   }
   
+  receiver:string="";
+  moneyTransferProcess=false;
+  toggleTransferBlock() {
+    this.showTransferBlock = !this.showTransferBlock;
+  }
+  moneyTransferResponse:MoneyTransferResponse=new MoneyTransferResponse(this.transaction,this.receiver);
+  moneyTransfer() {
+  
+    this.moneyTransferDetails = new MoneyTransferDetails(this.receiverAccountNumber, this.amount);
+  
+    this.atmService.moneyTransfer(this.moneyTransferDetails).subscribe(
+      (res) => {
+        this.moneyTransferResponse = res;
+        this.transaction=res.transaction;
+        if (res.transaction.transaction_status) {
+          this.transactionDone = true;
+          this.moneyTransferProcess = true;
+          setTimeout(() => {
+            this.transactionDone = false;
+            this.moneyTransferProcess = false;
+            this.moneyTransferResponse = new MoneyTransferResponse(this.transaction, this.receiver);
+          }, 3000);
+        } else {
+          this.errorMsg = res.transaction.trasaction_message;
+          setTimeout(() => {
+            this.errorMsg = '';
+          }, 4000);
+        }
+      },
+      (error) => {
+        this.errorMsg =
+          'Money transfer failed due to some error. Please try again or log in again to perform the same operation.';
+        setTimeout(() => {
+          this.errorMsg = '';
+        }, 4000);
+      }
+    );
+  }
+  
+
+   
   deposit() {
+    if(this.amount===0){
+      this.errorMsg="Enter Amount is input box";
+      setTimeout(
+      ()=>{  this.errorMsg=""},5000
+      );
+      return;
+    }
     this.atmService.deposit(this.amount).subscribe(
       (res) => {
         this.transaction = res;
@@ -85,6 +135,13 @@ export class AtmComponent implements OnInit {
     );
   }
   changPin() {
+    if(this.amount===0){
+      this.errorMsg="Enter Pin is input box";
+      setTimeout(
+      ()=>{  this.errorMsg=""},5000
+      );
+      return;
+    }
     this.atmService.changePin(this.amount).subscribe(
       (res) => {
         this.transaction = res;
@@ -101,7 +158,7 @@ export class AtmComponent implements OnInit {
         this.errorMsg=res.trasaction_message;
         setTimeout(()=>{
           this.errorMsg=""
-        },3000);
+        },3500);
       }
         
       },
@@ -116,6 +173,13 @@ export class AtmComponent implements OnInit {
     );
   }
   withdraw() {
+    if(this.amount===0){
+      this.errorMsg="Enter Amount is input box";
+      setTimeout(
+      ()=>{  this.errorMsg=""},5000
+      );
+      return;
+    }
     this.atmService.withdraw(this.amount).subscribe(
       (res) => {
         this.transaction = res;
@@ -126,13 +190,13 @@ export class AtmComponent implements OnInit {
           this.transactionDone = false;
           this.transaction = new TransactionMessage("", "", "", false, "");
           this.errorMsg = "";
-        }, 3000);
+        }, 3500);
       }
       else{
         this.errorMsg=res.trasaction_message;
         setTimeout(()=>{
           this.errorMsg=""
-        },3000);
+        },3500);
       }
         
       },
@@ -166,7 +230,7 @@ export class AtmComponent implements OnInit {
         this.errorMsg=res.transactionMessage.trasaction_message;
         setTimeout(()=>{
           this.errorMsg=""
-        },5000);
+        },3500);
       }
         
       },
@@ -201,7 +265,7 @@ export class AtmComponent implements OnInit {
       this.atmService.logout().subscribe(
         (res) => {
           if (res) {
-            sessionStorage.clear();
+            localStorage.clear();
             this.router.navigate(['/login']);
           }
         },

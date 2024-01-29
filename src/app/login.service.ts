@@ -12,6 +12,7 @@ export class LoginService {
     return this.httpClient.post<LoginMessage>("http://localhost:8080/login",accountData);
   }
 
+  
 
 }
 export class AccountData{

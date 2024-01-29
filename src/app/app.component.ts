@@ -14,20 +14,25 @@ export class AppComponent {
   constructor(private router: Router) {}
 
   redirectToService() {
-    if(localStorage===null){
+    if(!localStorage){
       this.router.navigate(['/login']);
+      return; // Stop execution if not logged in
     }
-    if(localStorage.getItem("account_number")===null){
+    const isLoggedIn = localStorage.getItem("account_number") !== null;
+  
+    if (!isLoggedIn) {
       this.router.navigate(['/login']);
+      return; // Stop execution if not logged in
     }
+  
     const accountNumber = localStorage.getItem('account_number');
-
-    if (accountNumber) { 
+  
+    if (accountNumber) {
       this.router.navigate(['/atmServices']);
     } else {
-   
       this.router.navigate(['/login']);
     }
   }
+  
   
 }
